@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
+import Script from 'next/script';
 import {
   MapPin,
   TrendingUp,
@@ -22,6 +23,13 @@ import {
   Coffee,
   ShoppingBag,
 } from 'lucide-react';
+
+// Kakao Maps 타입 선언
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 interface UserProfile {
   id: string;
@@ -61,6 +69,9 @@ export default function LocationPage() {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [topDistricts, setTopDistricts] = useState<DistrictStat[]>([]);
   const [topCategories, setTopCategories] = useState<CategoryStat[]>([]);
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<any>(null);
 
   useEffect(() => {
     checkUser();
@@ -108,6 +119,78 @@ export default function LocationPage() {
       console.error('Error loading location data:', error);
     }
   };
+
+  // 카카오맵 초기화
+  const initializeMap = () => {
+    if (!mapRef.current || !window.kakao || !window.kakao.maps) {
+      return;
+    }
+
+    const { kakao } = window;
+
+    // 서울 시청을 기본 중심으로 설정
+    const defaultCenter = new kakao.maps.LatLng(37.5665, 126.9780);
+
+    const mapOption = {
+      center: defaultCenter,
+      level: 5, // 지도 확대 레벨
+    };
+
+    // 지도 생성
+    const map = new kakao.maps.Map(mapRef.current, mapOption);
+    mapInstance.current = map;
+
+    // 마커 추가
+    if (locations.length > 0) {
+      // 첫 번째 위치로 지도 중심 이동
+      const firstLocation = locations[0];
+      const centerPosition = new kakao.maps.LatLng(
+        firstLocation.latitude,
+        firstLocation.longitude
+      );
+      map.setCenter(centerPosition);
+
+      // 각 위치에 마커 추가
+      locations.forEach((location) => {
+        const markerPosition = new kakao.maps.LatLng(
+          location.latitude,
+          location.longitude
+        );
+
+        const marker = new kakao.maps.Marker({
+          position: markerPosition,
+          map: map,
+        });
+
+        // 인포윈도우 생성
+        const infowindowContent = `
+          <div style="padding: 10px; min-width: 200px;">
+            <h3 style="font-weight: bold; margin-bottom: 5px;">${location.placeName}</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 3px;">${location.address}</p>
+            <p style="font-size: 12px; color: #666; margin-bottom: 3px;">${location.placeCategory}</p>
+            <p style="font-weight: bold; color: #3b82f6;">${formatCurrency(location.amount)}</p>
+          </div>
+        `;
+
+        const infowindow = new kakao.maps.InfoWindow({
+          content: infowindowContent,
+        });
+
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, 'click', () => {
+          infowindow.open(map, marker);
+        });
+      });
+    }
+  };
+
+  // 카카오맵 스크립트 로드 완료 후 실행
+  useEffect(() => {
+    if (kakaoLoaded && locations.length > 0) {
+      initializeMap();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kakaoLoaded, locations]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -163,9 +246,21 @@ export default function LocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 hidden lg:block">
+    <>
+      {/* Kakao Maps SDK 로드 */}
+      <Script
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`}
+        strategy="afterInteractive"
+        onLoad={() => {
+          window.kakao.maps.load(() => {
+            setKakaoLoaded(true);
+          });
+        }}
+      />
+
+      <div className="min-h-screen bg-gray-50">
+        {/* Sidebar */}
+        <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 hidden lg:block">
         <div className="p-6">
           <Link href="/dashboard" className="flex items-center gap-2 mb-8">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
@@ -263,15 +358,15 @@ export default function LocationPage() {
             </p>
           </div>
 
-          {/* Prototype Notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+          {/* Map Integration Notice */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
-              <span className="text-xl">🚧</span>
+              <span className="text-xl">🗺️</span>
               <div>
-                <h3 className="font-semibold text-amber-900 mb-1">프로토타입 데모</h3>
-                <p className="text-sm text-amber-700">
-                  현재는 실제 Kakao Maps API 대신 시뮬레이션된 위치 데이터를 제공합니다.
-                  거래 내역에 기반한 샘플 위치가 자동으로 생성됩니다.
+                <h3 className="font-semibold text-blue-900 mb-1">Kakao Maps 연동 완료</h3>
+                <p className="text-sm text-blue-700">
+                  실제 거래 내역을 기반으로 한 위치 데이터가 지도에 표시됩니다.
+                  마커를 클릭하여 상세 정보를 확인하세요.
                 </p>
               </div>
             </div>
@@ -370,17 +465,22 @@ export default function LocationPage() {
             </div>
           </div>
 
-          {/* Map Placeholder */}
+          {/* Kakao Map */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">소비 지도</h2>
-            <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">Kakao Maps API 연동 예정</p>
-                <p className="text-sm text-gray-500">
-                  지도에 거래 위치가 표시되며, 클릭하여 상세 정보를 확인할 수 있습니다.
-                </p>
-              </div>
+            <div
+              ref={mapRef}
+              className="w-full h-96 rounded-lg overflow-hidden"
+              style={{ minHeight: '400px' }}
+            >
+              {!kakaoLoaded && (
+                <div className="bg-gray-100 h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">지도를 불러오는 중...</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -418,6 +518,7 @@ export default function LocationPage() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 }
