@@ -110,10 +110,13 @@ export default function LocationPage() {
       const response = await fetch('/api/location/spending-map');
       const data = await response.json();
 
+      console.log('Location data loaded:', data);
+
       if (data.success) {
         setLocations(data.locations || []);
         setTopDistricts(data.stats?.topDistricts || []);
         setTopCategories(data.stats?.topCategories || []);
+        console.log('Locations set:', data.locations?.length);
       }
     } catch (error) {
       console.error('Error loading location data:', error);
@@ -122,7 +125,15 @@ export default function LocationPage() {
 
   // 카카오맵 초기화
   const initializeMap = () => {
+    console.log('Initializing map...', {
+      mapRef: !!mapRef.current,
+      kakao: !!window.kakao,
+      kakaoMaps: !!window.kakao?.maps,
+      locationsLength: locations.length
+    });
+
     if (!mapRef.current || !window.kakao || !window.kakao.maps) {
+      console.log('Map initialization failed - missing requirements');
       return;
     }
 
@@ -137,8 +148,10 @@ export default function LocationPage() {
     };
 
     // 지도 생성
+    console.log('Creating map...');
     const map = new kakao.maps.Map(mapRef.current, mapOption);
     mapInstance.current = map;
+    console.log('Map created successfully');
 
     // 마커 추가
     if (locations.length > 0) {
@@ -186,6 +199,7 @@ export default function LocationPage() {
 
   // 카카오맵 스크립트 로드 완료 후 실행
   useEffect(() => {
+    console.log('Map effect triggered:', { kakaoLoaded, locationsLength: locations.length });
     if (kakaoLoaded && locations.length > 0) {
       initializeMap();
     }
@@ -252,9 +266,14 @@ export default function LocationPage() {
         src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`}
         strategy="afterInteractive"
         onLoad={() => {
+          console.log('Kakao script loaded');
           window.kakao.maps.load(() => {
+            console.log('Kakao maps API loaded');
             setKakaoLoaded(true);
           });
+        }}
+        onError={(e) => {
+          console.error('Failed to load Kakao Maps script:', e);
         }}
       />
 
