@@ -18,6 +18,7 @@ import {
   Plus,
   Trash2,
   X,
+  MapPin,
 } from 'lucide-react';
 
 interface UserProfile {
@@ -282,6 +283,13 @@ export default function GoalsPage() {
             >
               <MessageSquare className="w-5 h-5" />
               AI 상담
+            </Link>
+            <Link
+              href="/location"
+              className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
+            >
+              <MapPin className="w-5 h-5" />
+              위치 기반 분석
             </Link>
             <Link
               href="/settings"
