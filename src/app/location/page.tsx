@@ -110,13 +110,21 @@ export default function LocationPage() {
       const response = await fetch('/api/location/spending-map');
       const data = await response.json();
 
-      console.log('Location data loaded:', data);
+      console.log('=== Location API Response ===');
+      console.log('Full response:', JSON.stringify(data, null, 2));
+      console.log('Success:', data.success);
+      console.log('Locations count:', data.locations?.length);
+      if (data.locations && data.locations.length > 0) {
+        console.log('First location sample:', JSON.stringify(data.locations[0], null, 2));
+      }
 
       if (data.success) {
         setLocations(data.locations || []);
         setTopDistricts(data.stats?.topDistricts || []);
         setTopCategories(data.stats?.topCategories || []);
-        console.log('Locations set:', data.locations?.length);
+        console.log('State updated - locations:', data.locations?.length);
+      } else {
+        console.error('API returned success: false', data);
       }
     } catch (error) {
       console.error('Error loading location data:', error);
@@ -129,7 +137,8 @@ export default function LocationPage() {
       mapRef: !!mapRef.current,
       naver: !!window.naver,
       naverMaps: !!window.naver?.maps,
-      locationsLength: locations.length
+      locationsLength: locations.length,
+      mapInstanceExists: !!mapInstance.current
     });
 
     if (!mapRef.current || !window.naver || !window.naver.maps) {
@@ -139,30 +148,37 @@ export default function LocationPage() {
 
     const { naver } = window;
 
-    // 서울 시청을 기본 중심으로 설정
-    const defaultCenter = new naver.maps.LatLng(37.5665, 126.9780);
+    // 지도가 이미 생성되어 있으면 재생성하지 않음
+    if (!mapInstance.current) {
+      // 서울 시청을 기본 중심으로 설정
+      const defaultCenter = new naver.maps.LatLng(37.5665, 126.9780);
 
-    const mapOptions = {
-      center: defaultCenter,
-      zoom: 13,
-      zoomControl: true,
-      zoomControlOptions: {
-        position: naver.maps.Position.RIGHT_CENTER,
-      },
-      mapTypeControl: true,
-      mapTypeControlOptions: {
-        position: naver.maps.Position.TOP_RIGHT,
-      },
-    };
+      const mapOptions = {
+        center: defaultCenter,
+        zoom: 13,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: naver.maps.Position.RIGHT_CENTER,
+        },
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+          position: naver.maps.Position.TOP_RIGHT,
+        },
+      };
 
-    // 지도 생성
-    console.log('Creating Naver map...');
-    const map = new naver.maps.Map(mapRef.current, mapOptions);
-    mapInstance.current = map;
-    console.log('Naver map created successfully');
+      // 지도 생성
+      console.log('Creating Naver map...');
+      const map = new naver.maps.Map(mapRef.current, mapOptions);
+      mapInstance.current = map;
+      console.log('Naver map created successfully');
+    }
+
+    const map = mapInstance.current;
 
     // 마커 추가
     if (locations.length > 0) {
+      console.log('Adding markers for locations:', locations.length);
+
       // 첫 번째 위치로 지도 중심 이동
       const firstLocation = locations[0];
       const centerPosition = new naver.maps.LatLng(
@@ -172,7 +188,9 @@ export default function LocationPage() {
       map.setCenter(centerPosition);
 
       // 각 위치에 마커 추가
-      locations.forEach((location) => {
+      locations.forEach((location, idx) => {
+        console.log(`Adding marker ${idx + 1}:`, location.placeName, location.latitude, location.longitude);
+
         const markerPosition = new naver.maps.LatLng(
           location.latitude,
           location.longitude
@@ -208,13 +226,17 @@ export default function LocationPage() {
           }
         });
       });
+
+      console.log('All markers added successfully');
+    } else {
+      console.log('No locations to display on map');
     }
   };
 
   // 네이버맵 스크립트 로드 완료 후 실행
   useEffect(() => {
     console.log('Map effect triggered:', { naverLoaded, locationsLength: locations.length });
-    if (naverLoaded && locations.length > 0) {
+    if (naverLoaded && locations.length > 0 && mapRef.current) {
       initializeMap();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -447,7 +469,7 @@ export default function LocationPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">지역별 소비 순위</h2>
               <div className="space-y-4">
                 {topDistricts.map((district, index) => (
-                  <div key={district.district} className="flex items-center justify-between">
+                  <div key={`district-${index}-${district.district}`} className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -476,7 +498,7 @@ export default function LocationPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">카테고리별 소비 순위</h2>
               <div className="space-y-4">
                 {topCategories.map((category, index) => (
-                  <div key={category.category} className="flex items-center justify-between">
+                  <div key={`category-${index}-${category.category}`} className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center ${getCategoryColor(category.category)}`}
@@ -505,6 +527,16 @@ export default function LocationPage() {
                   <p className="text-gray-600">지도를 불러오는 중...</p>
                 </div>
               </div>
+            ) : locations.length === 0 ? (
+              <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-2">표시할 거래 위치가 없습니다</p>
+                  <p className="text-sm text-gray-500">
+                    거래 내역이 추가되면 지도에 위치가 표시됩니다
+                  </p>
+                </div>
+              </div>
             ) : (
               <div
                 ref={mapRef}
@@ -517,34 +549,44 @@ export default function LocationPage() {
           {/* Recent Locations */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">최근 거래 위치</h2>
-            <div className="space-y-3">
-              {locations.slice(0, 10).map((location) => (
-                <div
-                  key={location.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${getCategoryColor(location.placeCategory)}`}
-                    >
-                      {getCategoryIcon(location.placeCategory)}
+            {locations.length === 0 ? (
+              <div className="text-center py-12">
+                <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-2">거래 위치 데이터가 없습니다</p>
+                <p className="text-sm text-gray-400">
+                  거래 내역이 생성되면 자동으로 위치 정보가 표시됩니다
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {locations.slice(0, 10).map((location, index) => (
+                  <div
+                    key={`location-${index}-${location.id}`}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${getCategoryColor(location.placeCategory)}`}
+                      >
+                        {getCategoryIcon(location.placeCategory)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{location.placeName}</p>
+                        <p className="text-sm text-gray-600">
+                          {location.district} • {location.placeCategory}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{location.placeName}</p>
-                      <p className="text-sm text-gray-600">
-                        {location.district} • {location.placeCategory}
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900">{formatCurrency(location.amount)}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(location.transactionDate).toLocaleDateString('ko-KR')}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-900">{formatCurrency(location.amount)}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(location.transactionDate).toLocaleDateString('ko-KR')}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
