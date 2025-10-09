@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네이버 지도 API 테스트</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        #map {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #333;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>네이버 지도 API 테스트</h1>
+
+    <div id="info">
+        <h2>설정 정보</h2>
+        <p><strong>Client ID:</strong> 11pz3tdpch</p>
+        <p><strong>API URL:</strong> https://oapi.map.naver.com/openapi/v3/maps.js</p>
+        <div id="status"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=11pz3tdpch"></script>
+    <script>
+        const statusDiv = document.getElementById('status');
+
+        function addStatus(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'status ' + (isError ? 'error' : 'success');
+            div.textContent = message;
+            statusDiv.appendChild(div);
+        }
+
+        // 스크립트 로드 확인
+        if (typeof naver !== 'undefined') {
+            addStatus('✓ Naver Maps SDK 로드 성공');
+
+            try {
+                // 지도 생성
+                const mapOptions = {
+                    center: new naver.maps.LatLng(37.5665, 126.9780), // 서울시청
+                    zoom: 13
+                };
+
+                const map = new naver.maps.Map('map', mapOptions);
+                addStatus('✓ 지도 생성 성공');
+
+                // 마커 추가
+                const marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(37.5665, 126.9780),
+                    map: map,
+                    title: '서울시청'
+                });
+                addStatus('✓ 마커 생성 성공');
+
+                // 인포윈도우 추가
+                const infoWindow = new naver.maps.InfoWindow({
+                    content: '<div style="padding:10px;">서울시청</div>'
+                });
+
+                naver.maps.Event.addListener(marker, 'click', function() {
+                    if (infoWindow.getMap()) {
+                        infoWindow.close();
+                    } else {
+                        infoWindow.open(map, marker);
+                    }
+                });
+                addStatus('✓ 인포윈도우 생성 성공');
+
+            } catch (error) {
+                addStatus('✗ 지도 생성 중 오류: ' + error.message, true);
+                console.error('Map creation error:', error);
+            }
+        } else {
+            addStatus('✗ Naver Maps SDK 로드 실패', true);
+        }
+
+        // 콘솔 메시지 캡처
+        const originalConsoleInfo = console.info;
+        console.info = function(...args) {
+            originalConsoleInfo.apply(console, args);
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('인증')) {
+                addStatus('✗ ' + args[0], true);
+            }
+        };
+    </script>
+</body>
+</html>
