@@ -387,14 +387,15 @@ export default function LocationPage() {
           </div>
 
           {/* Map Integration Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
               <span className="text-xl">🗺️</span>
               <div>
-                <h3 className="font-semibold text-blue-900 mb-1">Kakao Maps 연동 완료</h3>
-                <p className="text-sm text-blue-700">
-                  실제 거래 내역을 기반으로 한 위치 데이터가 지도에 표시됩니다.
-                  마커를 클릭하여 상세 정보를 확인하세요.
+                <h3 className="font-semibold text-amber-900 mb-1">위치 기반 분석 (베타)</h3>
+                <p className="text-sm text-amber-700">
+                  거래 내역 기반의 위치 데이터를 표시합니다.
+                  현재 카카오맵 무료 플랜의 제한으로 지도 타일이 표시되지 않을 수 있으며,
+                  아래 "최근 거래 위치" 목록에서 상세 정보를 확인하실 수 있습니다.
                 </p>
               </div>
             </div>
