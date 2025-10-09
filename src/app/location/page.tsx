@@ -487,20 +487,20 @@ export default function LocationPage() {
           {/* Kakao Map */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">소비 지도</h2>
-            <div
-              ref={mapRef}
-              className="w-full h-96 rounded-lg overflow-hidden"
-              style={{ minHeight: '400px' }}
-            >
-              {!kakaoLoaded && (
-                <div className="bg-gray-100 h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">지도를 불러오는 중...</p>
-                  </div>
+            {!kakaoLoaded ? (
+              <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600">지도를 불러오는 중...</p>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div
+                ref={mapRef}
+                className="w-full h-96 rounded-lg overflow-hidden bg-gray-100"
+                style={{ minHeight: '400px' }}
+              />
+            )}
           </div>
 
           {/* Recent Locations */}
