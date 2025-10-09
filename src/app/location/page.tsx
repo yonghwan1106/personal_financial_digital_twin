@@ -145,6 +145,7 @@ export default function LocationPage() {
     const mapOption = {
       center: defaultCenter,
       level: 5, // 지도 확대 레벨
+      mapTypeId: kakao.maps.MapTypeId.ROADMAP, // 로드맵 타입 명시
     };
 
     // 지도 생성
@@ -152,6 +153,14 @@ export default function LocationPage() {
     const map = new kakao.maps.Map(mapRef.current, mapOption);
     mapInstance.current = map;
     console.log('Map created successfully');
+
+    // 지도 타입 컨트롤 추가
+    const mapTypeControl = new kakao.maps.MapTypeControl();
+    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
+    // 줌 컨트롤 추가
+    const zoomControl = new kakao.maps.ZoomControl();
+    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
     // 마커 추가
     if (locations.length > 0) {
