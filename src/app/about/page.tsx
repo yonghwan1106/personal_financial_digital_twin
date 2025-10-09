@@ -44,6 +44,7 @@ export default function AboutPage() {
 
   useEffect(() => {
     checkUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkUser = async () => {
@@ -240,7 +241,7 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-4xl">
-              모든 국민이 자신의 금융 생활에 대한 '디지털 쌍둥이'를 가질 수 있도록,
+              모든 국민이 자신의 금융 생활에 대한 &apos;디지털 쌍둥이&apos;를 가질 수 있도록,
               미래를 예측하고 시뮬레이션하며 현명한 의사결정을 지원하는 금융 인생 내비게이션
             </p>
           </div>
@@ -570,7 +571,7 @@ export default function AboutPage() {
                       초개인화 서비스 제공
                     </h4>
                     <p className="text-gray-700">
-                      모든 국민에게 'AI 금융 주치의' 제공으로 단순 자금 지원을 넘어
+                      모든 국민에게 &apos;AI 금융 주치의&apos; 제공으로 단순 자금 지원을 넘어
                       금융 인생 전반을 함께 설계하는 동반자로서의 위상 정립
                     </p>
                   </div>

@@ -72,6 +72,7 @@ export default function AccountsPage() {
   useEffect(() => {
     checkUser();
     loadConnections();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkUser = async () => {
@@ -83,7 +84,7 @@ export default function AccountsPage() {
         return;
       }
 
-      let { data: profile } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
@@ -111,8 +112,8 @@ export default function AccountsPage() {
 
       if (accounts) {
         // Group by institution
-        const grouped = accounts.reduce((acc: any, account: any) => {
-          const existing = acc.find((g: any) => g.bankName === account.institution_name);
+        const grouped = accounts.reduce((acc: Array<BankConnection>, account: { institution_name: string; account_type: string; updated_at: string }) => {
+          const existing = acc.find((g) => g.bankName === account.institution_name);
           if (existing) {
             existing.accountCount++;
           } else {
@@ -140,7 +141,7 @@ export default function AccountsPage() {
     router.push('/');
   };
 
-  const connectBank = async (bank: any) => {
+  const connectBank = async (bank: { id: string; name: string }) => {
     setConnecting(true);
     setShowBankModal(false);
 
@@ -183,7 +184,7 @@ export default function AccountsPage() {
     }, 2000);
   };
 
-  const connectCard = async (card: any) => {
+  const connectCard = async (card: { id: string; name: string }) => {
     setConnecting(true);
     setShowCardModal(false);
 

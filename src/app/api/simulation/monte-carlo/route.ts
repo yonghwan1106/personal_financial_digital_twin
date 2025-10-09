@@ -169,7 +169,10 @@ JSON 형식으로만 답변해주세요:
 `;
 
   try {
-    const response = await chatWithClaude(prompt, []);
+    const response = await chatWithClaude({
+      message: prompt,
+      conversationHistory: [],
+    });
 
     // JSON 파싱
     const jsonMatch = response.match(/\{[\s\S]*\}/);
