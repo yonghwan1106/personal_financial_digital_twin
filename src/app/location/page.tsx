@@ -24,10 +24,10 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 
-// Kakao Maps 타입 선언
+// Naver Maps 타입 선언
 declare global {
   interface Window {
-    kakao: any;
+    naver: any;
   }
 }
 
@@ -69,7 +69,7 @@ export default function LocationPage() {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [topDistricts, setTopDistricts] = useState<DistrictStat[]>([]);
   const [topCategories, setTopCategories] = useState<CategoryStat[]>([]);
-  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+  const [naverLoaded, setNaverLoaded] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
 
@@ -123,50 +123,49 @@ export default function LocationPage() {
     }
   };
 
-  // 카카오맵 초기화
+  // 네이버맵 초기화
   const initializeMap = () => {
-    console.log('Initializing map...', {
+    console.log('Initializing Naver map...', {
       mapRef: !!mapRef.current,
-      kakao: !!window.kakao,
-      kakaoMaps: !!window.kakao?.maps,
+      naver: !!window.naver,
+      naverMaps: !!window.naver?.maps,
       locationsLength: locations.length
     });
 
-    if (!mapRef.current || !window.kakao || !window.kakao.maps) {
+    if (!mapRef.current || !window.naver || !window.naver.maps) {
       console.log('Map initialization failed - missing requirements');
       return;
     }
 
-    const { kakao } = window;
+    const { naver } = window;
 
     // 서울 시청을 기본 중심으로 설정
-    const defaultCenter = new kakao.maps.LatLng(37.5665, 126.9780);
+    const defaultCenter = new naver.maps.LatLng(37.5665, 126.9780);
 
-    const mapOption = {
+    const mapOptions = {
       center: defaultCenter,
-      level: 5, // 지도 확대 레벨
-      mapTypeId: kakao.maps.MapTypeId.ROADMAP, // 로드맵 타입 명시
+      zoom: 13,
+      zoomControl: true,
+      zoomControlOptions: {
+        position: naver.maps.Position.RIGHT_CENTER,
+      },
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        position: naver.maps.Position.TOP_RIGHT,
+      },
     };
 
     // 지도 생성
-    console.log('Creating map...');
-    const map = new kakao.maps.Map(mapRef.current, mapOption);
+    console.log('Creating Naver map...');
+    const map = new naver.maps.Map(mapRef.current, mapOptions);
     mapInstance.current = map;
-    console.log('Map created successfully');
-
-    // 지도 타입 컨트롤 추가
-    const mapTypeControl = new kakao.maps.MapTypeControl();
-    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-
-    // 줌 컨트롤 추가
-    const zoomControl = new kakao.maps.ZoomControl();
-    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+    console.log('Naver map created successfully');
 
     // 마커 추가
     if (locations.length > 0) {
       // 첫 번째 위치로 지도 중심 이동
       const firstLocation = locations[0];
-      const centerPosition = new kakao.maps.LatLng(
+      const centerPosition = new naver.maps.LatLng(
         firstLocation.latitude,
         firstLocation.longitude
       );
@@ -174,46 +173,52 @@ export default function LocationPage() {
 
       // 각 위치에 마커 추가
       locations.forEach((location) => {
-        const markerPosition = new kakao.maps.LatLng(
+        const markerPosition = new naver.maps.LatLng(
           location.latitude,
           location.longitude
         );
 
-        const marker = new kakao.maps.Marker({
+        const marker = new naver.maps.Marker({
           position: markerPosition,
           map: map,
         });
 
         // 인포윈도우 생성
         const infowindowContent = `
-          <div style="padding: 10px; min-width: 200px;">
-            <h3 style="font-weight: bold; margin-bottom: 5px;">${location.placeName}</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 3px;">${location.address}</p>
-            <p style="font-size: 12px; color: #666; margin-bottom: 3px;">${location.placeCategory}</p>
-            <p style="font-weight: bold; color: #3b82f6;">${formatCurrency(location.amount)}</p>
+          <div style="padding: 15px; min-width: 200px; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            <h3 style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${location.placeName}</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${location.address}</p>
+            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${location.placeCategory}</p>
+            <p style="font-weight: bold; color: #3b82f6; font-size: 14px;">${formatCurrency(location.amount)}</p>
           </div>
         `;
 
-        const infowindow = new kakao.maps.InfoWindow({
+        const infowindow = new naver.maps.InfoWindow({
           content: infowindowContent,
+          borderWidth: 0,
+          backgroundColor: 'transparent',
         });
 
         // 마커 클릭 이벤트
-        kakao.maps.event.addListener(marker, 'click', () => {
-          infowindow.open(map, marker);
+        naver.maps.Event.addListener(marker, 'click', () => {
+          if (infowindow.getMap()) {
+            infowindow.close();
+          } else {
+            infowindow.open(map, marker);
+          }
         });
       });
     }
   };
 
-  // 카카오맵 스크립트 로드 완료 후 실행
+  // 네이버맵 스크립트 로드 완료 후 실행
   useEffect(() => {
-    console.log('Map effect triggered:', { kakaoLoaded, locationsLength: locations.length });
-    if (kakaoLoaded && locations.length > 0) {
+    console.log('Map effect triggered:', { naverLoaded, locationsLength: locations.length });
+    if (naverLoaded && locations.length > 0) {
       initializeMap();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kakaoLoaded, locations]);
+  }, [naverLoaded, locations]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -270,19 +275,16 @@ export default function LocationPage() {
 
   return (
     <>
-      {/* Kakao Maps SDK 로드 */}
+      {/* Naver Maps SDK 로드 */}
       <Script
-        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`}
+        src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}
         strategy="afterInteractive"
         onLoad={() => {
-          console.log('Kakao script loaded');
-          window.kakao.maps.load(() => {
-            console.log('Kakao maps API loaded');
-            setKakaoLoaded(true);
-          });
+          console.log('Naver Maps script loaded');
+          setNaverLoaded(true);
         }}
         onError={(e) => {
-          console.error('Failed to load Kakao Maps script:', e);
+          console.error('Failed to load Naver Maps script:', e);
         }}
       />
 
@@ -387,15 +389,14 @@ export default function LocationPage() {
           </div>
 
           {/* Map Integration Notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
               <span className="text-xl">🗺️</span>
               <div>
-                <h3 className="font-semibold text-amber-900 mb-1">위치 기반 분석 (베타)</h3>
-                <p className="text-sm text-amber-700">
-                  거래 내역 기반의 위치 데이터를 표시합니다.
-                  현재 카카오맵 무료 플랜의 제한으로 지도 타일이 표시되지 않을 수 있으며,
-                  아래 "최근 거래 위치" 목록에서 상세 정보를 확인하실 수 있습니다.
+                <h3 className="font-semibold text-blue-900 mb-1">위치 기반 분석</h3>
+                <p className="text-sm text-blue-700">
+                  네이버 지도 API를 사용하여 거래 내역 기반의 위치 데이터를 표시합니다.
+                  지도에서 마커를 클릭하면 상세 정보를 확인할 수 있습니다.
                 </p>
               </div>
             </div>
@@ -494,10 +495,10 @@ export default function LocationPage() {
             </div>
           </div>
 
-          {/* Kakao Map */}
+          {/* Naver Map */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">소비 지도</h2>
-            {!kakaoLoaded ? (
+            {!naverLoaded ? (
               <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
