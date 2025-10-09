@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 나의 금융 미래 (Personal Financial Digital Twin)
 
-## Getting Started
+**서민금융진흥원 대국민 혁신 아이디어 공모전 출품작**
 
-First, run the development server:
+AI와 데이터 기반으로 당신의 금융 미래를 시뮬레이션하고, 최적의 재무 의사결정을 돕는 초개인화 금융 라이프 플래닝 서비스
+
+## 🎯 프로젝트 개요
+
+개인의 모든 금융 데이터를 통합하여 '디지털 쌍둥이'를 만들고, AI 기반 시뮬레이션을 통해 미래의 다양한 시나리오를 예측합니다.
+
+## ✨ 주요 기능
+
+### Phase 1 (MVP)
+- 🏦 금융 데이터 통합
+- 📊 재무 현황 대시보드
+- 🔮 미래 시뮬레이션
+- 🎯 재무 목표 설정
+
+## 🛠️ 기술 스택
+
+- Frontend: Next.js 15, React, TypeScript, Tailwind CSS
+- Backend: Supabase
+- AI: Anthropic Claude API
+- Charts: Recharts
+- Deployment: Vercel
+
+## 🚀 시작하기
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
