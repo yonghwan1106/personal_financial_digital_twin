@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, Shield, Sparkles, Target } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 export default function Home() {
   return (
@@ -7,10 +8,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
-            <span className="text-xl font-bold text-gray-900">나의 금융 디지털트윈</span>
-          </div>
+          <Logo variant="compact" />
           <nav className="hidden md:flex items-center gap-6">
             <Link href="#features" className="text-gray-600 hover:text-gray-900">
               주요 기능
@@ -209,10 +207,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
-                <span className="text-white font-bold">나의 금융 디지털트윈</span>
-              </div>
+              <Logo variant="footer" className="mb-4" />
               <p className="text-sm">
                 AI 기반 개인 재무 관리 플랫폼
               </p>

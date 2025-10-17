@@ -22,6 +22,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Logo from '@/components/Logo';
 
 interface UserProfile {
   id: string;
@@ -163,9 +164,8 @@ export default function DashboardPage() {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 hidden lg:block">
         <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
-            <span className="text-lg font-bold text-gray-900">금융 디지털트윈</span>
+          <div className="mb-8">
+            <Logo variant="compact" />
           </div>
 
           <nav className="space-y-2">
@@ -251,10 +251,7 @@ export default function DashboardPage() {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-30">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
-            <span className="text-lg font-bold text-gray-900">금융 디지털트윈</span>
-          </div>
+          <Logo variant="compact" />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg"
