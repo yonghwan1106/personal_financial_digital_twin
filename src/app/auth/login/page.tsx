@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { ArrowLeft, Mail, Lock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,6 +36,28 @@ export default function LoginPage() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: 'demo@financial-twin.kr',
+        password: 'demo1234!@#$',
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message || '데모 계정 로그인에 실패했습니다');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -58,6 +80,40 @@ export default function LoginPage() {
             <p className="text-gray-600">
               계정에 로그인하여 재무 현황을 확인하세요
             </p>
+          </div>
+
+          {/* Demo Account Banner */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-purple-900 mb-1">
+                  먼저 체험해보세요!
+                </h3>
+                <p className="text-xs text-purple-700 mb-3">
+                  회원가입 없이 샘플 데이터로 모든 기능을 둘러볼 수 있습니다
+                </p>
+                <button
+                  type="button"
+                  onClick={handleDemoLogin}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {loading ? '로그인 중...' : '데모 계정으로 체험하기'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">또는</span>
+            </div>
           </div>
 
           {error && (

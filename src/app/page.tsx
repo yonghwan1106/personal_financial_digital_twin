@@ -56,12 +56,16 @@ export default function Home() {
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="#how-it-works"
-              className="inline-flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:border-gray-400 transition-colors"
+              href="/auth/login"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all"
             >
-              자세히 알아보기
+              <Sparkles className="w-5 h-5" />
+              데모로 먼저 체험하기
             </Link>
           </div>
+          <p className="mt-6 text-sm text-gray-500">
+            회원가입 없이 샘플 데이터로 모든 기능을 체험해보세요
+          </p>
         </div>
       </section>
 
