@@ -25,6 +25,7 @@ import {
   Sparkles,
   MapPin,
 } from 'lucide-react';
+import Logo from '@/components/Logo';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface UserProfile {
@@ -181,10 +182,9 @@ export default function SimulationPage() {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 hidden lg:block">
         <div className="p-6">
-          <Link href="/dashboard" className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg"></div>
-            <span className="text-lg font-bold text-gray-900">금융 디지털트윈</span>
-          </Link>
+          <div className="mb-8">
+            <Logo variant="compact" />
+          </div>
 
           <nav className="space-y-2">
             <Link
